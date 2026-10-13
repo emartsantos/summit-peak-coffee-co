@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AlertCircle, CircleCheckBig, Loader2, MessageCircle } from "lucide-react";
 import { config } from "@/lib/config";
 import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
-import { Input, Select, Textarea } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
+import { SelectMenu } from "@/components/ui/select";
 import { Field, FieldError, Label } from "@/components/ui/field";
 
 const { inquiry, contact } = config;
@@ -38,6 +39,7 @@ export function InquiryForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     getValues,
     formState: { errors },
@@ -164,18 +166,21 @@ export function InquiryForm() {
 
       <Field>
         <Label htmlFor="topic">What is this about?</Label>
-        <Select
-          id="topic"
-          aria-invalid={errors.topic ? true : undefined}
-          aria-describedby={errors.topic ? "topic-error" : undefined}
-          {...register("topic")}
-        >
-          {inquiry.topics.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </Select>
+        <Controller
+          control={control}
+          name="topic"
+          render={({ field }) => (
+            <SelectMenu
+              id="topic"
+              options={inquiry.topics}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              invalid={Boolean(errors.topic)}
+              aria-describedby={errors.topic ? "topic-error" : undefined}
+            />
+          )}
+        />
         <FieldError>{errors.topic ? <span id="topic-error">{errors.topic.message}</span> : null}</FieldError>
       </Field>
 
